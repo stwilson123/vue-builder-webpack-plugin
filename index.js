@@ -46,10 +46,13 @@ const buildVues = (callback, compiler) => {
     };
 
     const langCheck = (file, extension, type) => {
-      const length = -5 - extension.length;
+      //const length = -5 - extension.length;
+      let fileExtensionsCheck = `.${fileExtensions}.${extension}`;
+      const length = -1 * (fileExtensionsCheck.length);
+
       let scoped = false;
 
-      if (file.slice(length) === `.${fileExtensions}.${extension}`) {
+      if (file.slice(length) === fileExtensionsCheck) {
         let name = file.slice(0, length);
 
         if (type === 'style' && name.slice(-7) === '.scoped') {
@@ -156,7 +159,7 @@ const buildVues = (callback, compiler) => {
       }
 
       if (sources.script[vue] || sources.style[vue] || sources.template[vue]) {
-        const modulePath = `${dest}.vue`;
+        const modulePath = `${dest}.${fileExtensions}`;
         const ctime = VirtualModulePlugin.statsDate();
         const contents = singleVue(vue, path.dirname(dest));
         const fs = (this && this.fileSystem) || compiler.inputFileSystem;
