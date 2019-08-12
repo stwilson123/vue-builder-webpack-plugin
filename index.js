@@ -5,6 +5,7 @@ const VirtualModulePlugin = require('virtual-module-webpack-plugin');
 let directory = __dirname;
 let folder = false;
 let allScoped = false;
+let fileExtensions = "vue";
 const createdFiles = [];
 
 function VueBuilderPlugin(options) {
@@ -20,6 +21,11 @@ function VueBuilderPlugin(options) {
 
   if (options.allScoped) {
     allScoped = true;
+  }
+
+  if (options.fileExtensions)
+  {
+    fileExtensions = options.fileExtensions;
   }
 }
 
@@ -43,7 +49,7 @@ const buildVues = (callback, compiler) => {
       const length = -5 - extension.length;
       let scoped = false;
 
-      if (file.slice(length) === `.vue.${extension}`) {
+      if (file.slice(length) === `.${fileExtensions}.${extension}`) {
         let name = file.slice(0, length);
 
         if (type === 'style' && name.slice(-7) === '.scoped') {
