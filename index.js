@@ -77,8 +77,10 @@ const buildVues = (callback, compiler) => {
           sources[type][name].push({
             file,
             lang: extension,
-            moduled: moduled
+            moduled: moduled,
+            scoped:scoped
           });
+
         }
         else {
           sources[type][name] = {
@@ -88,9 +90,9 @@ const buildVues = (callback, compiler) => {
         }
 
 
-        if (scoped) {
-          sources.style[name].scoped = true;
-        }
+        // if (scoped) {
+        //   sources.style[name].scoped = true;
+        // }
 
         return true;
       }
