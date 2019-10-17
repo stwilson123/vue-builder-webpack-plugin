@@ -23,8 +23,7 @@ function VueBuilderPlugin(options) {
     allScoped = true;
   }
 
-  if (options.fileExtensions)
-  {
+  if (options.fileExtensions) {
     fileExtensions = options.fileExtensions;
   }
 }
@@ -51,13 +50,21 @@ const buildVues = (callback, compiler) => {
       const length = -1 * (fileExtensionsCheck.length);
 
       let scoped = false;
-
-      if (file.slice(length) === fileExtensionsCheck) {
-        let name = file.slice(0, length);
-
+      let moduled = false;
+      let fullName = file.substr(file.lastIndexOf('\\') + 1);
+      let fileExtensionsName = fullName.length > 0 ? fullName.substr(fullName.indexOf('.') + 1) : null;
+      //if (file.slice(length) === fileExtensionsCheck) {
+      if (file.slice(length) === fileExtensionsCheck ||
+      (type === 'style' && fileExtensionsName && fileExtensionsName.startsWith(fileExtensions) && fileExtensionsName.endsWith('.'+extension))) {
+        // let name = file.slice(0, length);
+        let name = file.slice(0, file.lastIndexOf(fileExtensionsName) - 1);
         if (type === 'style' && name.slice(-7) === '.scoped') {
           scoped = true;
           name = name.slice(0, -7);
+        }
+
+        if (type === 'style' && fileExtensionsName.indexOf('.moduled') > 0) {
+          moduled = true;
         }
 
         if (type === 'style' && allScoped) {
@@ -65,10 +72,21 @@ const buildVues = (callback, compiler) => {
         }
 
         vues[name] = true;
-        sources[type][name] = {
-          file,
-          lang: extension,
-        };
+        if (type === 'style') {
+          sources[type][name] = sources[type][name] || [];
+          sources[type][name].push({
+            file,
+            lang: extension,
+            moduled: moduled
+          });
+        }
+        else {
+          sources[type][name] = {
+            file,
+            lang: extension,
+          };
+        }
+
 
         if (scoped) {
           sources.style[name].scoped = true;
@@ -93,8 +111,10 @@ const buildVues = (callback, compiler) => {
         data += `<script src="${relate(script.file)}" lang="${script.lang}"></script>\n`;
       }
 
-      if (style) {
-        data += `<style src="${relate(style.file)}" lang="${style.lang}"${style.scoped ? ' scoped' : ''}></style>\n`;
+      if (style && Array.isArray(style)) {
+        for (const sty of style) {
+          data += `<style src="${relate(sty.file)}" lang="${sty.lang}"${sty.moduled ? ' module' : (sty.scoped ? ' scoped' : '')}></style>\n`;
+        }
       }
 
       if (template) {
