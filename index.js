@@ -1,7 +1,7 @@
 const recursiveRead = require('recursive-readdir');
 const path = require('path');
 const VirtualModulePlugin = require('virtual-module-webpack-plugin');
-
+const fs=require("fs");
 let directory = __dirname;
 let folder = false;
 let allScoped = false;
@@ -42,11 +42,16 @@ const buildVues = (callback, compiler) => {
       script: {},
       template: {},
       style: {},
+      source:{}
     };
 
     const langCheck = (file, extension, type) => {
+
       //const length = -5 - extension.length;
       let fileExtensionsCheck = `.${fileExtensions}.${extension}`;
+      if(fileExtensionsCheck.endsWith("."))
+        fileExtensionsCheck = fileExtensionsCheck.substring(0,fileExtensionsCheck.length-1)
+       
       const length = -1 * (fileExtensionsCheck.length);
 
       let scoped = false;
@@ -106,27 +111,34 @@ const buildVues = (callback, compiler) => {
       const script = sources.script[name];
       const style = sources.style[name];
       const template = sources.template[name];
-
+      const source = sources.source[name];
       const relate = file => `.${path.sep}${path.relative(dirname, file)}`;
 
       if (script) {
         data += `<script src="${relate(script.file)}" lang="${script.lang}"></script>\n`;
       }
 
-      if (style && Array.isArray(style)) {
-        for (const sty of style) {
-          data += `<style src="${relate(sty.file)}" lang="${sty.lang}"${sty.moduled ? ' module' : (sty.scoped ? ' scoped' : '')}></style>\n`;
-        }
-      }
+      
 
       if (template) {
         data += `<template src="${relate(template.file)}" lang="${template.lang}"></template>\n`;
       }
-
+      if (style && Array.isArray(style)) {
+        for (const sty of style) {
+          data += `<style src="${relate(sty.file)}" lang="${sty.lang}"${sty.moduled ? ' module="local" ' : (sty.scoped ? ' scoped' : '')}></style>\n`;
+        }
+      }
+      if(source){
+        var sourceFile = fs.readFileSync(source.file);
+        data += new String(sourceFile);
+      }
       return data;
     };
 
     files.forEach((file) => {
+      if (langCheck(file, '', 'source')) {
+        return;
+      }
       if (langCheck(file, 'html', 'template')) {
         return;
       }
