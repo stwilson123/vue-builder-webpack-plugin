@@ -1,11 +1,12 @@
 const recursiveRead = require('recursive-readdir');
 const path = require('path');
 const VirtualModulePlugin = require('virtual-module-webpack-plugin');
-const fs=require("fs");
+const fs = require("fs");
 let directory = __dirname;
 let folder = false;
 let allScoped = false;
 let fileExtensions = "vue";
+let fileTestRegex;
 const createdFiles = [];
 
 function VueBuilderPlugin(options) {
@@ -26,6 +27,11 @@ function VueBuilderPlugin(options) {
   if (options.fileExtensions) {
     fileExtensions = options.fileExtensions;
   }
+
+  if (options.filePathTestRegex) {
+    fileTestRegex = options.filePathTestRegex;
+  }
+
 }
 
 const buildVues = (callback, compiler) => {
@@ -42,16 +48,15 @@ const buildVues = (callback, compiler) => {
       script: {},
       template: {},
       style: {},
-      source:{}
+      source: {}
     };
 
     const langCheck = (file, extension, type) => {
-
       //const length = -5 - extension.length;
       let fileExtensionsCheck = `.${fileExtensions}.${extension}`;
-      if(fileExtensionsCheck.endsWith("."))
-        fileExtensionsCheck = fileExtensionsCheck.substring(0,fileExtensionsCheck.length-1)
-       
+      if (fileExtensionsCheck.endsWith("."))
+        fileExtensionsCheck = fileExtensionsCheck.substring(0, fileExtensionsCheck.length - 1)
+
       const length = -1 * (fileExtensionsCheck.length);
 
       let scoped = false;
@@ -60,7 +65,7 @@ const buildVues = (callback, compiler) => {
       let fileExtensionsName = fullName.length > 0 ? fullName.substr(fullName.indexOf('.') + 1) : null;
       //if (file.slice(length) === fileExtensionsCheck) {
       if (file.slice(length) === fileExtensionsCheck ||
-      (type === 'style' && fileExtensionsName && fileExtensionsName.startsWith(fileExtensions) && fileExtensionsName.endsWith('.'+extension))) {
+        (type === 'style' && fileExtensionsName && fileExtensionsName.startsWith(fileExtensions) && fileExtensionsName.endsWith('.' + extension))) {
         // let name = file.slice(0, length);
         let name = file.slice(0, file.lastIndexOf(fileExtensionsName) - 1);
         if (type === 'style' && name.slice(-7) === '.scoped') {
@@ -83,7 +88,7 @@ const buildVues = (callback, compiler) => {
             file,
             lang: extension,
             moduled: moduled,
-            scoped:scoped
+            scoped: scoped
           });
 
         }
@@ -118,7 +123,7 @@ const buildVues = (callback, compiler) => {
         data += `<script src="${relate(script.file)}" lang="${script.lang}"></script>\n`;
       }
 
-      
+
 
       if (template) {
         data += `<template src="${relate(template.file)}" lang="${template.lang}"></template>\n`;
@@ -128,18 +133,24 @@ const buildVues = (callback, compiler) => {
           data += `<style src="${relate(sty.file)}" lang="${sty.lang}"${sty.moduled ? ' module="local" ' : (sty.scoped ? ' scoped' : '')}></style>\n`;
         }
       }
-      if(source){
+      if (source) {
         var sourceFile = fs.readFileSync(source.file);
         data += new String(sourceFile);
       }
       return data;
     };
-
-    files.forEach((file) => {
+    let fileTest = fileTestRegex && fileTestRegex.exec ? fileTestRegex : null;
+    files.filter(f => {
+        return  fileTest ? fileTest.exec(f) : true; 
+    }).forEach((file) => {
       if (langCheck(file, '', 'source')) {
         return;
       }
       if (langCheck(file, 'html', 'template')) {
+        return;
+      }
+
+      if (langCheck(file, 'htm', 'template')) {
         return;
       }
 
