@@ -58,7 +58,6 @@ const buildVues = (callback, compiler) => {
         fileExtensionsCheck = fileExtensionsCheck.substring(0, fileExtensionsCheck.length - 1)
 
       const length = -1 * (fileExtensionsCheck.length);
-
       let scoped = false;
       let moduled = false;
       let fullName = file.substr(file.lastIndexOf('\\') + 1);
@@ -112,17 +111,26 @@ const buildVues = (callback, compiler) => {
 
     const singleVue = (name, dirname) => {
       let data = '';
+      debugger
 
       const script = sources.script[name];
       const style = sources.style[name];
       const template = sources.template[name];
       const source = sources.source[name];
       const relate = file => `.${path.sep}${path.relative(dirname, file)}`;
-
+      const relatePath = file => `./${path.relative(dirname, file)}`;
+      // if (script) {
+      //   data += `<script src="${relate(script.file)}" lang="${script.lang}"></script>\n`;
+      // }
       if (script) {
-        data += `<script src="${relate(script.file)}" lang="${script.lang}"></script>\n`;
+        debugger
+        var referencePath = relatePath(script.file);
+        //referencePath = referencePath.substr(0,referencePath.length - 3);
+        data += `<script lang="${script.lang}">
+          import com from "${referencePath}"
+          export default com;
+        </script>\n`;
       }
-
 
 
       if (template) {
@@ -130,7 +138,7 @@ const buildVues = (callback, compiler) => {
       }
       if (style && Array.isArray(style)) {
         for (const sty of style) {
-          data += `<style src="${relate(sty.file)}" lang="${sty.lang}"${sty.moduled ? ' module="$localStyle" ' : (sty.scoped ? ' scoped' : '')}></style>\n`;
+          data += `<style src="${relate(sty.file)}" lang="${sty.lang}"${sty.moduled ? ' module="local" ' : (sty.scoped ? ' scoped' : '')}></style>\n`;
         }
       }
       if (source) {
