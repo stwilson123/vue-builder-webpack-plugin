@@ -32,8 +32,7 @@ function VueBuilderPlugin(options) {
     fileTestRegex = options.filePathTestRegex;
   }
 
-  if(options.optImport)
-  {
+  if (optImport !== options.optImport) {
     optImport = options.optImport;
   }
 }
@@ -125,10 +124,13 @@ const buildVues = (callback, compiler) => {
       const relatePath = file => `./${path.relative(dirname, file)}`;
 
 
-      if (!optImport && script) {
+      // if (script)
+      //   data += `<script src="${relate(script.file)}" lang="${script.lang}"></script>\n`;
+
+      if ((!optImport ||optImport === false) && script) {
         data += `<script src="${relate(script.file)}" lang="${script.lang}"></script>\n`;
       }
-      if(optImport && script)
+      if(optImport === true && script)
       {
         var referencePath = relatePath(script.file);
         //referencePath = referencePath.substr(0,referencePath.length - 3);
@@ -137,7 +139,7 @@ const buildVues = (callback, compiler) => {
           export default com;
         </script>\n`;
       }
-      
+
 
 
       if (template) {
@@ -156,7 +158,7 @@ const buildVues = (callback, compiler) => {
     };
     let fileTest = fileTestRegex && fileTestRegex.exec ? fileTestRegex : null;
     files.filter(f => {
-        return  fileTest ? fileTest.exec(f) : true; 
+      return fileTest ? fileTest.exec(f) : true;
     }).forEach((file) => {
       if (langCheck(file, '', 'source')) {
         return;
