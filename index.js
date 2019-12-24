@@ -8,7 +8,7 @@ let allScoped = false;
 let fileExtensions = "vue";
 let fileTestRegex;
 const createdFiles = [];
-
+let optImport = true;
 function VueBuilderPlugin(options) {
   if (path.isAbsolute(options.path)) {
     directory = options.path;
@@ -32,6 +32,10 @@ function VueBuilderPlugin(options) {
     fileTestRegex = options.filePathTestRegex;
   }
 
+  if(options.optImport)
+  {
+    optImport = options.optImport;
+  }
 }
 
 const buildVues = (callback, compiler) => {
@@ -119,11 +123,13 @@ const buildVues = (callback, compiler) => {
       const source = sources.source[name];
       const relate = file => `.${path.sep}${path.relative(dirname, file)}`;
       const relatePath = file => `./${path.relative(dirname, file)}`;
-      // if (script) {
-      //   data += `<script src="${relate(script.file)}" lang="${script.lang}"></script>\n`;
-      // }
-      if (script) {
-        debugger
+
+
+      if (!optImport && script) {
+        data += `<script src="${relate(script.file)}" lang="${script.lang}"></script>\n`;
+      }
+      if(optImport && script)
+      {
         var referencePath = relatePath(script.file);
         //referencePath = referencePath.substr(0,referencePath.length - 3);
         data += `<script lang="${script.lang}">
@@ -131,6 +137,7 @@ const buildVues = (callback, compiler) => {
           export default com;
         </script>\n`;
       }
+      
 
 
       if (template) {
