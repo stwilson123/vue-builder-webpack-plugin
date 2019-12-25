@@ -147,7 +147,7 @@ const buildVues = (callback, compiler) => {
       }
       if (style && Array.isArray(style)) {
         for (const sty of style) {
-          data += `<style src="${relate(sty.file)}" lang="${sty.lang}"${sty.moduled ? ' module="local" ' : (sty.scoped ? ' scoped' : '')}></style>\n`;
+          data += `<style src="${relate(sty.file)}" lang="${sty.lang}"${sty.moduled ? ' module="localStyle" ' : (sty.scoped ? ' scoped' : '')}></style>\n`;
         }
       }
       if (source) {
