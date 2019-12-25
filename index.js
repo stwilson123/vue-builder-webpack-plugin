@@ -32,7 +32,7 @@ function VueBuilderPlugin(options) {
     fileTestRegex = options.filePathTestRegex;
   }
 
-  if (options.optImport !== undefined || options.optImport !== null) {
+  if (options.optImport !== undefined) {
     optImport = options.optImport;
   }
 }
