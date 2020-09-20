@@ -221,14 +221,16 @@ const buildVues = (callback, compiler) => {
 
       if (sources.script[vue] || sources.style[vue] || sources.template[vue]) {
         const modulePath = `${dest}.${fileExtensions}`;
-        const ctime = VirtualModulePlugin.statsDate();
-        const contents = singleVue(vue, path.dirname(dest));
-        const fs = (this && this.fileSystem) || compiler.inputFileSystem;
-
-        createdFiles.push(modulePath);
-        VirtualModulePlugin.populateFilesystem({
-          fs, modulePath, contents, ctime,
-        });
+          //const ctime = VirtualModulePlugin.statsDate();
+          const ctime = new Date();
+          const mtime = ctime;
+          const contents = singleVue(vue, path.dirname(dest));
+          const fs = (this && this.fileSystem) || compiler.inputFileSystem;
+  
+          createdFiles.push(modulePath);
+          VirtualModulePlugin.populateFilesystem({
+            fs, modulePath, contents, ctime, mtime
+          });
       }
     });
 
