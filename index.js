@@ -2,7 +2,7 @@ const recursiveRead = require('recursive-readdir');
 const path = require('path');
 const VirtualModulePlugin = require('virtual-module-webpack-plugin');
 const fs = require("fs");
-let directory = __dirname;
+let directory = __dirname; 
 let folder = false;
 let allScoped = false;
 let fileExtensions = "vue";
@@ -114,13 +114,12 @@ const buildVues = (callback, compiler) => {
 
     const singleVue = (name, dirname) => {
       let data = '';
-      debugger
 
       const script = sources.script[name];
       const style = sources.style[name];
       const template = sources.template[name];
       const source = sources.source[name];
-      const relate = file => `.${path.sep}${path.relative(dirname, file)}`;
+      const relate = (file) => `.${path.sep}${path.relative(dirname, file)}`;
       const relatePath = file => `./${path.relative(dirname, file)}`;
 
 
